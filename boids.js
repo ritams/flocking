@@ -19,7 +19,9 @@ const DRAW_TRAIL = true;
 const MAX_OPACITY = 20; // Percent
 const OPACITY_STROKE_GROUPS = 10; // Number of histories to draw with the same stroke (to improve performance)
 const MAX_WING_SHADOW_LENGTH = 10; // Pixels
-const MAX_WING_LENGTH = 2; // Pixels
+const MAX_WING_LENGTH = 30; // Pixels
+const MAX_BOID_LENGTH = 5; // Pixels
+const MAX_BOID_WIDTH = 1; // Pixels
 
 var visualRange = 100;  
 // var visualRangeSlider = document.getElementById("ritam");
@@ -219,44 +221,44 @@ function drawBoid(ctx, boid) {
 
   ctx.beginPath();
   ctx.moveTo(boid.x, boid.y);
-  ctx.lineTo(boid.x - 15, boid.y + 5);
-  ctx.lineTo(boid.x - 15, boid.y + 5);
-  ctx.lineTo(boid.x - 30, boid.y);
-  ctx.lineTo(boid.x - 15, boid.y - 5);
+  ctx.lineTo(boid.x - MAX_BOID_LENGTH, boid.y + MAX_BOID_WIDTH);
+  ctx.lineTo(boid.x - MAX_BOID_LENGTH, boid.y + MAX_BOID_WIDTH);
+  ctx.lineTo(boid.x - 2 * MAX_BOID_LENGTH, boid.y);
+  ctx.lineTo(boid.x - MAX_BOID_LENGTH, boid.y - MAX_BOID_WIDTH);
   ctx.lineTo(boid.x, boid.y);
   ctx.fill();
 
   ctx.beginPath();
   ctx.moveTo(boid.x, boid.y);
-  ctx.lineTo(boid.x - 15, boid.y + 5);
-  ctx.lineTo(boid.x - 15, boid.y - 5);
+  ctx.lineTo(boid.x - MAX_BOID_LENGTH, boid.y + MAX_BOID_WIDTH);
+  ctx.lineTo(boid.x - MAX_BOID_LENGTH, boid.y - MAX_BOID_WIDTH);
   ctx.lineTo(boid.x, boid.y);
   ctx.fill();
   ctx.closePath();
 
   ctx.beginPath();
-  ctx.moveTo(boid.x - 15, boid.y);
-  ctx.lineTo(boid.x - 30, boid.y + 5);
-  ctx.lineTo(boid.x - 30, boid.y - 5);
-  ctx.lineTo(boid.x - 15, boid.y);
+  ctx.moveTo(boid.x - MAX_BOID_LENGTH, boid.y);
+  ctx.lineTo(boid.x - 2 * MAX_BOID_LENGTH, boid.y + MAX_BOID_WIDTH);
+  ctx.lineTo(boid.x - 2 * MAX_BOID_LENGTH, boid.y - MAX_BOID_WIDTH);
+  ctx.lineTo(boid.x - MAX_BOID_LENGTH, boid.y);
   ctx.fill();
   ctx.closePath();
 
   const wing_length = MAX_WING_LENGTH * Math.sin(boid.theta);
 
   ctx.beginPath();
-  ctx.moveTo(boid.x - 15, boid.y + wing_length);
-  ctx.lineTo(boid.x - 15 + 5, boid.y);
-  ctx.lineTo(boid.x - 15 - 5, boid.y);
-  ctx.moveTo(boid.x - 15, boid.y + wing_length);
+  ctx.moveTo(boid.x - MAX_BOID_LENGTH, boid.y + wing_length);
+  ctx.lineTo(boid.x - MAX_BOID_LENGTH + MAX_BOID_WIDTH, boid.y);
+  ctx.lineTo(boid.x - MAX_BOID_LENGTH - MAX_BOID_WIDTH, boid.y);
+  ctx.moveTo(boid.x - MAX_BOID_LENGTH, boid.y + wing_length);
   ctx.fill();
   ctx.closePath();
 
   ctx.beginPath();
-  ctx.moveTo(boid.x - 15, boid.y - wing_length);
-  ctx.lineTo(boid.x - 15 + 5, boid.y);
-  ctx.lineTo(boid.x - 15 - 5, boid.y);
-  ctx.moveTo(boid.x - 15, boid.y - wing_length);
+  ctx.moveTo(boid.x - MAX_BOID_LENGTH, boid.y - wing_length);
+  ctx.lineTo(boid.x - MAX_BOID_LENGTH + MAX_BOID_WIDTH, boid.y);
+  ctx.lineTo(boid.x - MAX_BOID_LENGTH - MAX_BOID_WIDTH, boid.y);
+  ctx.moveTo(boid.x - MAX_BOID_LENGTH, boid.y - wing_length);
   ctx.fill();
   ctx.closePath();
 
