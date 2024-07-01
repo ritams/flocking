@@ -19,7 +19,7 @@ const DRAW_TRAIL = true;
 const MAX_OPACITY = 20; // Percent
 const OPACITY_STROKE_GROUPS = 10; // Number of histories to draw with the same stroke (to improve performance)
 const MAX_WING_SHADOW_LENGTH = 10; // Pixels
-const MAX_WING_LENGTH = 30; // Pixels
+const MAX_WING_LENGTH = 2; // Pixels
 
 var visualRange = 100;  
 // var visualRangeSlider = document.getElementById("ritam");
