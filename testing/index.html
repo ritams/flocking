@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/addons/p5.sound.min.js"></script>
+  <script src="https://unpkg.com/ml5@0.5.0/dist/ml5.min.js"></script>
+  <meta charset="utf-8" />
+
+  <style type="text/css">
+    body {
+      margin: 0;
+      
+      background: linear-gradient(to bottom, #7ccdff 0%, #ffbc58 100%);
+      overflow: hidden;
+    }
+
+    .env {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+  /* position the image at the end of the screen */
+
+    svg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      z-index: 0;
+      width: 100%;
+      height: auto;
+    }
+
+    #switch_dir {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      z-index: 2;
+      width: 150px;
+      height: 75px;
+      border-radius: 50px;
+      cursor: pointer;
+      background: #ffbc58;
+      border: 1px solid #6c6a67;
+    }
+    
+  </style>
+
+</head>
+
+<body>
+  <div class="env">
+    <button id="switch_dir">Change Direction</button>
+    <canvas id="boids" width="150" height="150"></canvas>
+    <svg width="700" height="87" viewBox="0 0 700 87" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M206.954 60.6741C206.954 93.8112 185.091 80.4006 151.954 80.4006C118.817 80.4006 86.9538 93.8112 86.9538 60.6741C86.9538 27.537 113.817 0.674084 146.954 0.674084C180.091 0.674084 206.954 27.537 206.954 60.6741Z" fill="#FD922E"/>
+      <path d="M57.6779 70.2266L0 56.652V87H700V41.5691L637.079 56.652L497.69 41.5691L435.643 56.652L393.695 51.1216L374.032 56.652L312.859 29L277.466 41.5691H196.192L156.866 56.652L116.23 51.1216L57.6779 70.2266Z" fill="#0E0507"/>
+    </svg>
+
+  </div>
+  <script src="sketch.js"></script>
+</body>
+
+</html>

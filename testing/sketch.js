@@ -1,10 +1,35 @@
 
+// let img;
+let video;
+let detector;
+let detections = [];
 
+function preload() {
+  detector = ml5.objectDetector('cocossd');
+}
+
+function gotDetections(error, results) {
+  if (error) {
+    console.error(error);
+  }
+  detections = results;
+  detector.detect(video, gotDetections);
+}
+
+function setup() {
+  createCanvas(640, 480);
+  fill(0);
+  video = createCapture(VIDEO);
+  video.size(640, 480);
+  video.hide();
+  detector.detect(video, gotDetections);
+  
+}
 
 // Global parameters
 let width = 150;
 let height = 150;
-const numBoids = 300;
+const numBoids = 100;
 var visualRange = 100;
 let mousePos = { x: 0, y: 0 };
 
@@ -15,24 +40,24 @@ const centeringFactor = 0.005; // adjust velocity by this %
 const minDistance = 50; // The distance to stay away from other boids
 const avoidFactor = 0.05; // Adjust velocity by this %
 const matchingFactor = 0.05; // Adjust by this % of average velocity
-const speedLimit = 10;
+const speedLimit = 20;
 const avoidRadius = 100; // Distance within which boids will try to avoid the mouse
 const mouseAvoidFactor = 5; // How strongly boids will move away from the mouse
 const DRAW_TRAIL = true;
 const MAX_OPACITY = 20; // Percent
 const OPACITY_STROKE_GROUPS = 10; // Number of histories to draw with the same stroke (to improve performance)
 const MAX_WING_SHADOW_LENGTH = 10; // Pixels
-const MAX_WING_LENGTH = 15; // Pixels
-const MAX_BOID_LENGTH = 10; // Pixels
-const MAX_BOID_WIDTH = 2; // Pixels
+const MAX_WING_LENGTH = 20; // Pixels
+const MAX_BOID_LENGTH = 15; // Pixels
+const MAX_BOID_WIDTH = 3; // Pixels
 const MAX_BOID_TRAIL_STROKE = 1; // Pixels
 
 var visualRange = 100;  
-// var visualRangeSlider = document.getElementById("ritam");
-
-// visualRangeSlider.oninput = function() {
-//   visualRange = this.value;
-// }
+var button = document.getElementById("switch_dir");
+var direction = -1;
+button.onclick = function() {
+  direction = -direction;
+}
 
 let boids = [];
 
@@ -170,12 +195,13 @@ function update_theta(boid) {
   boid.theta += dtheta;
 }
 
-function avoidMouse(boid) {
-  let dx = boid.x - mousePos.x;
-  let dy = boid.y - mousePos.y;
+
+function avoidPerson(boid, x, y, radius) {
+  let dx = boid.x - x;
+  let dy = boid.y - y;
   let distance = Math.sqrt(dx ** 2 + dy ** 2);
 
-  if (distance < avoidRadius) {
+  if (distance < radius) {
     boid.dx += (dx / distance) * mouseAvoidFactor;
     boid.dy += (dy / distance) * mouseAvoidFactor;
   }
@@ -221,7 +247,6 @@ function drawBoid(ctx, boid) {
   ctx.translate(-boid.x, -boid.y);
   ctx.fillStyle = "#000000";
   ctx.strokeStyle = "#558cf4";
-  ctx.lineWidth = 3;
 
   ctx.beginPath();
   ctx.moveTo(boid.x, boid.y);
@@ -231,6 +256,7 @@ function drawBoid(ctx, boid) {
   ctx.lineTo(boid.x - MAX_BOID_LENGTH, boid.y - MAX_BOID_WIDTH);
   ctx.lineTo(boid.x, boid.y);
   ctx.fill();
+  ctx.closePath();
 
   ctx.beginPath();
   ctx.moveTo(boid.x, boid.y);
@@ -269,9 +295,55 @@ function drawBoid(ctx, boid) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
+function drawPerson(ctx, x, y, radius) {
+  ctx.strokeStyle = `rgba(0 0 0 / 100%)`;
+  ctx.lineWidth = 1;
+  let num_segments = 100;
+  for (let i = 0; i < num_segments; i += 2) {
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, (1 +  i / num_segments) * Math.PI, (1 + (i + 1) / num_segments) * Math.PI);  
+    ctx.stroke();
+    ctx.closePath();
+  }
+}
 
 
 function animationLoop() {
+  const canvas = document.getElementById("boids")
+  const ctx = canvas.getContext("2d");
+
+
+  let x_arr = [];
+  let y_arr = [];
+  let radius_arr = [];
+  let x, y, radius;
+  for (let i = 0; i < detections.length; i++) {
+    if (detections[i].label == "person") {
+      object = detections[i];
+      x = object.x + object.width / 2;
+      y = object.y + object.height
+      radius = object.height
+
+      x_arr.push(x);
+      y_arr.push(y);
+      radius_arr.push(radius);
+    }
+  }
+
+  if (x_arr.length > 0) {
+
+    for (let i = 0; i < x_arr.length; i++) {
+      x_arr[i] = x_arr[i] * canvas.width / 640
+      y_arr[i] = y_arr[i] * canvas.height / 480
+      radius_arr[i] = radius_arr[i] * canvas.height / 640;
+      if (direction == -1) {
+        x_arr[i] = canvas.width - x_arr[i];
+      }
+    }
+  }
+
+
   const dt = 0.5;
 
   for (let i = 0; i < 1 / dt; i += 1) {
@@ -282,7 +354,13 @@ function animationLoop() {
       limitSpeed(boid);
       keepWithinBounds(boid);
       update_theta(boid);
-      avoidMouse(boid);
+
+      if (x_arr.length > 0){
+        for (let j = 0; j < x_arr.length; j++) {
+          avoidPerson(boid, x_arr[j], y_arr[j], radius_arr[j]);
+        }
+      }
+
 
       boid.x += boid.dx * dt;
       boid.y += boid.dy * dt;
@@ -300,15 +378,19 @@ function animationLoop() {
     }
   }
 
-
-
-  const ctx = document.getElementById("boids").getContext("2d");
   ctx.clearRect(0, 0, width, height);
   for (let boid of boids) {
     drawTrail(ctx, boid);
   }
   for (let boid of boids) {
     drawBoid(ctx, boid);
+  }
+
+
+  if (x_arr.length > 0) {
+    for (let i = 0; i < x_arr.length; i++) {
+      drawPerson(ctx, x_arr[i], y_arr[i], radius_arr[i]);
+    }
   }
   window.requestAnimationFrame(animationLoop);
 }
@@ -317,6 +399,7 @@ window.onload = () => {
   setupMousePositionListener();
   window.addEventListener("resize", sizeCanvas, false);
   sizeCanvas();
+  
   initBoids();
   window.requestAnimationFrame(animationLoop);
 };
