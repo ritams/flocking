@@ -23,7 +23,6 @@ function setup() {
   video.size(640, 480);
   video.hide();
   detector.detect(video, gotDetections);
-  
 }
 
 // Global parameters
